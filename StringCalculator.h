@@ -34,7 +34,7 @@ int add(const char *input) {
  * 
  * @param numbers The array of Number structures to sum.
  * @param count The number of elements in the array.
- * @return The total sum of the numbers.
+ * @return The total sum of the numbers, or exits on negatives.
  */
 static int calculateSum(Number *numbers, int count) {
     int sum = 0;
@@ -55,7 +55,7 @@ static int calculateSum(Number *numbers, int count) {
 
     if (negativeCount > 0) {
         fprintf(stderr, "%s\n", buffer);
-        exit(EXIT_FAILURE); // Exit on negative number
+        exit(EXIT_FAILURE);
     }
 
     return sum;
@@ -72,7 +72,7 @@ static void parseInput(const char *input, Number *numbers, int *count) {
     char *token;
     char delimiter[10] = {',', '\0'}; // Default delimiter
 
-    if (input[0] == '/') { // Handle custom delimiter
+    if (input[0] == '/') {
         handleCustomDelimiter(&input, delimiter);
     }
 
