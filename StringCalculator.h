@@ -8,6 +8,13 @@
 
 #define MAX_NUMBERS 1000
 
+// Function declarations
+int add(const char *input);
+static int calculateSum(const int *numbers, int count);
+static void parseInput(const char *input, int *numbers, int *count);
+static void handleCustomDelimiter(const char **input, char *delimiter);
+static int checkForNegatives(const int *numbers, int count);
+
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
  * 
