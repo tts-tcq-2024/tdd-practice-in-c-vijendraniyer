@@ -1,0 +1,13 @@
+Test Case Number,Test Case Name,Description,Input,Expected Output
+TC01,TestEmptyString_ReturnsZero,Tests that an empty string returns 0.,"""""",1
+TC02,TestSingleNumber_ReturnsSameNumber,Tests that a single number returns that number.,"""1""",1
+TC03,TestTwoNumbers_ReturnsSum,Tests that two numbers return their sum.,"""1,2""",3
+TC04,TestMultipleNumbers_ReturnsSum,Tests that multiple numbers return their sum.,"""1,2,3,4,5""",15
+TC05,TestNewLineDelimiter_ReturnsSum,Tests that new lines can be used as delimiters along with commas.,"""1\n2,3""",6
+TC06,TestCustomDelimiter_ReturnsSum,Tests that a custom delimiter specified in the input works correctly.,"""//;\n1;2""",3
+TC07,TestCustomMultiCharacterDelimiter,Tests that a custom multi-character delimiter is handled correctly.,"""//[***]\n1***2***3""",6
+TC08,TestNegativeNumber_ThrowsException,Tests that providing a negative number throws an exception.,"""1,-2,3""",Exception: 'negatives not allowed: -2'
+TC09,TestMultipleNegatives_ThrowsException,Tests that providing multiple negative numbers throws an exception.,"""1,-2,-3""","Exception: 'negatives not allowed: -2, -3'"
+TC10,TestIgnoreLargeNumbers,Tests that numbers greater than 1000 are ignored in the sum.,"""2,1001""",2
+TC11,TestMixedDelimiters_ReturnsSum,Tests that a mix of delimiters and numbers works as expected.,"""//;\n1;1001\n2,3""",6
+TC12,TestInvalidEndingWithComma_ThrowsException,Tests that a string ending with a comma is not allowed (no output).,"""1,\n""",Exception: Invalid input
