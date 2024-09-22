@@ -31,7 +31,7 @@ jobs:
       uses: Uno-Takashi/Lizard-Runner@v3
       with:
           path: "./"
-          CCN: "3"
+          CCN: "4"
           exclude: "./build/*"
           
 
