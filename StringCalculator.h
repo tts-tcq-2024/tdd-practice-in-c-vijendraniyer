@@ -11,7 +11,8 @@ static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(int *numbers, int count);
-static void processLine(char *line, int *numbers, int *count, char *delimiter);
+static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount);
+static void printNegativeError(char *buffer);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -132,18 +133,46 @@ static void checkForNegatives(int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: ";
     int negativeCount = 0;
 
+    // Collect negative numbers
+    collectNegatives(numbers, count, buffer, &negativeCount);
+
+    // Print error if negatives were found
+    if (negativeCount > 0) {
+        printNegativeError(buffer);
+    }
+}
+
+/**
+ * @brief Collects negative numbers from the provided array.
+ * 
+ * This function scans through the numbers and appends any negative numbers 
+ * to the provided buffer.
+ * 
+ * @param numbers The array of integers to check.
+ * @param count The number of elements in the array.
+ * @param buffer The buffer to store the error message.
+ * @param negativeCount Pointer to keep track of the count of negative numbers found.
+ */
+static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount) {
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
-            if (negativeCount > 0) {
+            if (*negativeCount > 0) {
                 strcat(buffer, ", ");
             }
             sprintf(buffer + strlen(buffer), "%d", numbers[i]);
-            negativeCount++;
+            (*negativeCount)++;
         }
     }
+}
 
-    if (negativeCount > 0) {
-        fprintf(stderr, "%s\n", buffer);
-        exit(EXIT_FAILURE); // Exit on negative number
-    }
+/**
+ * @brief Prints an error message if negative numbers are found.
+ * 
+ * This function outputs the error message to stderr and exits the program.
+ * 
+ * @param buffer The error message containing the negative numbers.
+ */
+static void printNegativeError(char *buffer) {
+    fprintf(stderr, "%s\n", buffer);
+    exit(EXIT_FAILURE); // Exit on negative number
 }
