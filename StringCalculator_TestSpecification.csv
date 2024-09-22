@@ -1,0 +1,20 @@
+Test Case Number,Test Case Name,Description,Input,Expected Output
+TC01,TestEmptyString_ReturnsZero,Tests that an empty string returns 0.,"""""",0
+TC02,TestSingleNumber_ReturnsSameNumber,Tests that a single number returns that number.,"""1""",1
+TC03,TestTwoNumbers_ReturnsSum,Tests that two numbers return their sum.,"""1,2""",3
+TC04,TestMultipleNumbers_ReturnsSum,Tests that multiple numbers return their sum.,"""1,2,3,4,5""",15
+TC05,TestNewLineDelimiter_ReturnsSum,Tests that new lines can be used as delimiters along with commas.,"""1\n2,3""",6
+TC06,TestCustomDelimiter_ReturnsSum,Tests that a custom delimiter specified in the input works correctly.,"""//;\n1;2""",3
+TC07,TestCustomMultiCharacterDelimiter,Tests that a custom multi-character delimiter is handled correctly.,"""//[***]\n1***2***3""",6
+TC08,TestNegativeNumber_ThrowsException,Tests that providing a negative number throws an exception.,"""1,-2,3""",Exception: 'negatives not allowed: -2'
+TC09,TestMultipleNegatives_ThrowsException,Tests that providing multiple negative numbers throws an exception.,"""1,-2,-3""","Exception: 'negatives not allowed: -2, -3'"
+TC10,TestIgnoreLargeNumbers,Tests that numbers greater than 1000 are ignored in the sum.,"""2,1001""",2
+TC11,TestMixedDelimiters_ReturnsSum,Tests that a mix of delimiters and numbers works as expected.,"""//;\n1;1001\n2,3""",6
+TC12,TestInvalidEndingWithComma_ThrowsException,Tests that a string ending with a comma is not allowed (no output).,"""1,\n""",Exception: Invalid input
+TC13,TestEmptyStringWithSpaces_ReturnsZero,Tests that an empty string with spaces returns 0.,"""   """,0
+TC14,TestSingleNumberWithSpaces_ReturnsSameNumber,Tests that a single number with leading/trailing spaces returns that number.,"""  5  """,5
+TC15,TestLeadingDelimiter_ReturnsSum,Tests that a string that starts with a delimiter and has numbers after it returns the correct sum.,"""//;\n;1;2""",3
+TC16,TestInvalidDelimiter_ThrowsException,Tests that an invalid delimiter pattern (missing numbers) raises an exception.,"""//;\n""",Exception: Invalid input
+TC17,TestNegativeInCustomDelimiter_ThrowsException,Tests that negative numbers are correctly identified with custom delimiters.,"""//;\n1;-2;3""",Exception: 'negatives not allowed: -2'
+TC18,TestAllValidNumbersAbove1000Ignored,Tests that all numbers above 1000 are ignored in the sum.,"""1000,1001,2000""",1000
+TC19,TestNoNumbers_ReturnsZero,Tests the output when the input has only delimiters and no numbers.,"""//;\n;;""",0
