@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #define MAX_NUMBERS 1000
 
@@ -10,7 +9,7 @@ int add(const char *input);
 static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
-static void checkForNegatives(int *numbers, int count);
+static void checkForNegatives(const int *numbers, int count);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -68,7 +67,7 @@ static int calculateSum(const int *numbers, int count) {
 static void parseInput(const char *input, int *numbers, int *count) {
     char *token;
     char *end;
-    char delimiter[2] = {',', '\0'}; // Default delimiter
+    char delimiter[10] = {',', '\0'}; // Default delimiter
 
     if (input[0] == '/') { // Handle custom delimiter
         handleCustomDelimiter(&input, delimiter);
@@ -76,9 +75,9 @@ static void parseInput(const char *input, int *numbers, int *count) {
 
     // Split input by delimiter and convert to integers
     token = strtok((char *)input, "\n");
-    while (token != NULL) {
+    while (token) {
         char *numToken = strtok(token, delimiter);
-        while (numToken != NULL) {
+        while (numToken) {
             numbers[(*count)++] = strtol(numToken, &end, 10);
             numToken = strtok(NULL, delimiter);
         }
@@ -96,9 +95,8 @@ static void parseInput(const char *input, int *numbers, int *count) {
  * @param delimiter Buffer to store the custom delimiter.
  */
 static void handleCustomDelimiter(const char **input, char *delimiter) {
-    // Skip the custom delimiter line
     (*input) += 2; // Skip "//"
-    while (**input != '\n' && **input != '\0') {
+    while (**input && **input != '\n') {
         strncat(delimiter, *input, 1); // Append custom delimiter character
         (*input)++;
     }
@@ -114,7 +112,7 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  * @param numbers The array of integers to check.
  * @param count The number of elements in the array.
  */
-static void checkForNegatives(int *numbers, int count) {
+static void checkForNegatives(const int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: ";
     int negativeCount = 0;
 
