@@ -15,6 +15,8 @@ static void collectNegatives(int *numbers, int count, char *buffer, int *negativ
 static void appendNegative(char *buffer, int negativeNumber, int *negativeCount);
 static void printNegativeError(char *buffer);
 static void processLine(char *line, int *numbers, int *count, const char *delimiter);
+static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
+static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -84,18 +86,30 @@ static void parseInput(const char *input, int *numbers, int *count) {
         exit(EXIT_FAILURE);
     }
 
-    // Split input by newlines and process each line
-    char *line = strtok(modifiableInput, "\n");
-    while (line != NULL) {
-        processLine(line, numbers, count, delimiter);
-        line = strtok(NULL, "\n"); // Get next line
-    }
+    // Split input by lines and process each line
+    splitLines(modifiableInput, numbers, count, delimiter);
 
     free(modifiableInput); // Free the allocated memory
 }
 
 /**
- * @brief Processes each line of the input to extract numbers.
+ * @brief Splits input into lines and processes each line.
+ * 
+ * @param input The mutable input string to split.
+ * @param numbers The array to store the extracted numbers.
+ * @param count Pointer to the integer that keeps track of the number of extracted numbers.
+ * @param delimiter The delimiter used to split the line.
+ */
+static void splitLines(char *input, int *numbers, int *count, const char *delimiter) {
+    char *line = strtok(input, "\n");
+    while (line != NULL) {
+        processTokens(line, numbers, count, delimiter); // Process each line's tokens
+        line = strtok(NULL, "\n"); // Get next line
+    }
+}
+
+/**
+ * @brief Processes each line's tokens to extract numbers.
  * 
  * This function splits the line using the specified delimiter and converts 
  * the tokens into integers, storing them in the provided array.
@@ -105,7 +119,7 @@ static void parseInput(const char *input, int *numbers, int *count) {
  * @param count Pointer to the integer that keeps track of the number of extracted numbers.
  * @param delimiter The delimiter used to split the line.
  */
-static void processLine(char *line, int *numbers, int *count, const char *delimiter) {
+static void processTokens(char *line, int *numbers, int *count, const char *delimiter) {
     char *numToken = strtok(line, delimiter); // Tokenize using the specified delimiter
     while (numToken != NULL) {
         // Check if count exceeds MAX_NUMBERS to prevent overflow
