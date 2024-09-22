@@ -1,10 +1,7 @@
-#ifndef STRING_CALCULATOR_H
-#define STRING_CALCULATOR_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
+#include <ctype.h>
 
 #define MAX_NUMBERS 1000
 
@@ -13,7 +10,7 @@ int add(const char *input);
 static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
-static int checkForNegatives(const int *numbers, int count);
+static void checkForNegatives(int *numbers, int count);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -28,11 +25,13 @@ int add(const char *input) {
     int numbers[MAX_NUMBERS];
     int count = 0;
 
+    // Parse input to fill numbers array
     parseInput(input, numbers, &count);
-    if (checkForNegatives(numbers, count)) {
-        return -1; // Early return if negatives found
-    }
 
+    // Check for negative numbers
+    checkForNegatives(numbers, count);
+
+    // Calculate and return the sum
     return calculateSum(numbers, count);
 }
 
@@ -68,21 +67,19 @@ static int calculateSum(const int *numbers, int count) {
  */
 static void parseInput(const char *input, int *numbers, int *count) {
     char *token;
-    char delimiter[10] = {',', '\0'}; // Default delimiter
+    char *end;
+    char delimiter[2] = {',', '\0'}; // Default delimiter
 
     if (input[0] == '/') { // Handle custom delimiter
         handleCustomDelimiter(&input, delimiter);
     }
 
+    // Split input by delimiter and convert to integers
     token = strtok((char *)input, "\n");
     while (token != NULL) {
         char *numToken = strtok(token, delimiter);
         while (numToken != NULL) {
-            long number = strtol(numToken, NULL, 10);
-            // Check for valid number conversion and store
-            if (number >= INT_MIN && number <= INT_MAX) {
-                numbers[(*count)++] = (int)number;
-            }
+            numbers[(*count)++] = strtol(numToken, &end, 10);
             numToken = strtok(NULL, delimiter);
         }
         token = strtok(NULL, "\n");
@@ -99,8 +96,9 @@ static void parseInput(const char *input, int *numbers, int *count) {
  * @param delimiter Buffer to store the custom delimiter.
  */
 static void handleCustomDelimiter(const char **input, char *delimiter) {
+    // Skip the custom delimiter line
     (*input) += 2; // Skip "//"
-    while (**input && **input != '\n') {
+    while (**input != '\n' && **input != '\0') {
         strncat(delimiter, *input, 1); // Append custom delimiter character
         (*input)++;
     }
@@ -111,13 +109,12 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  * @brief Checks for negative numbers in the provided array.
  * 
  * This function scans the numbers and if any negative numbers are found, 
- * it prints an error message and returns a flag.
+ * it prints an error message and exits the program.
  * 
  * @param numbers The array of integers to check.
  * @param count The number of elements in the array.
- * @return 1 if negatives are found, otherwise 0.
  */
-static int checkForNegatives(const int *numbers, int count) {
+static void checkForNegatives(int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: ";
     int negativeCount = 0;
 
@@ -133,10 +130,6 @@ static int checkForNegatives(const int *numbers, int count) {
 
     if (negativeCount > 0) {
         fprintf(stderr, "%s\n", buffer);
-        return 1; // Indicate that negatives were found
+        exit(EXIT_FAILURE); // Exit on negative number
     }
-
-    return 0; // No negatives found
 }
-
-#endif // STRING_CALCULATOR_H
