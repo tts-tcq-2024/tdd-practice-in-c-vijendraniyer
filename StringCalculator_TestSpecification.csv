@@ -6,8 +6,8 @@ TC04,TestMultipleNumbers_ReturnsSum,Tests that multiple numbers return their sum
 TC05,TestNewLineDelimiter_ReturnsSum,Tests that new lines can be used as delimiters along with commas.,"""1\n2,3""",6
 TC06,TestCustomDelimiter_ReturnsSum,Tests that a custom delimiter specified in the input works correctly.,"""//;\n1;2""",3
 TC07,TestCustomMultiCharacterDelimiter,Tests that a custom multi-character delimiter is handled correctly.,"""//[***]\n1***2***3""",6
-TC08,TestNegativeNumber_ThrowsException,Tests that providing a negative number throws an exception.,"""1,-2,3""",Exception: 'negatives not allowed: -2'
-TC09,TestMultipleNegatives_ThrowsException,Tests that providing multiple negative numbers throws an exception.,"""1,-2,-3""",Exception: 'negatives not allowed: -2, -3'
+TC08,TestNegativeNumber_ThrowsException,Tests that providing a negative number throws an exception.,"""1,-2,3""","Exception: 'negatives not allowed: -2'"
+TC09,TestMultipleNegatives_ThrowsException,Tests that providing multiple negative numbers throws an exception.,"""1,-2,-3""","Exception: 'negatives not allowed: -2, -3'"
 TC10,TestIgnoreLargeNumbers,Tests that numbers greater than 1000 are ignored in the sum.,"""2,1001""",2
 TC11,TestMixedDelimiters_ReturnsSum,Tests that a mix of delimiters and numbers works as expected.,"""//;\n1;1001\n2,3""",6
-TC12,TestInvalidEndingWithComma_ThrowsException,Tests that a string ending with a comma is not allowed (no output).,"""1,\n""",Exception: Invalid input
+TC12,TestInvalidEndingWithComma_ThrowsException,Tests that a string ending with a comma is not allowed (no output).,"""1,\n""","Exception: Invalid input"
