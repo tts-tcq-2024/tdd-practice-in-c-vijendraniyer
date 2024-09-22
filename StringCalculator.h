@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_NUMBERS 1000
+#define MAX_NUMBERS 1000 // Maximum number of integers that can be processed
 
 // Function declarations
 int add(const char *input);
@@ -14,7 +14,7 @@ static void checkForNegatives(int *numbers, int count);
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount);
 static void appendNegative(char *buffer, int negativeNumber, int *negativeCount);
 static void printNegativeError(char *buffer);
-static void processLine(char *line, int *numbers, int *count, char *delimiter);
+static void processLine(char *line, int *numbers, int *count, const char *delimiter);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -26,8 +26,8 @@ static void processLine(char *line, int *numbers, int *count, char *delimiter);
  * @return The sum of the numbers, or -1 if negatives are found.
  */
 int add(const char *input) {
-    int numbers[MAX_NUMBERS];
-    int count = 0;
+    int numbers[MAX_NUMBERS]; // Array to hold extracted numbers
+    int count = 0; // Count of numbers extracted
 
     // Parse input to fill numbers array
     parseInput(input, numbers, &count);
@@ -35,28 +35,8 @@ int add(const char *input) {
     // Check for negative numbers
     checkForNegatives(numbers, count);
 
-    // Calculate and return the sum
+    // Calculate and return the sum of valid numbers
     return calculateSum(numbers, count);
-}
-
-/**
- * @brief Calculates the sum of an array of numbers.
- * 
- * This function iterates through the provided array and sums up all numbers 
- * that are less than or equal to 1000.
- * 
- * @param numbers The array of integers to sum.
- * @param count The number of elements in the array.
- * @return The total sum of the numbers.
- */
-static int calculateSum(const int *numbers, int count) {
-    int sum = 0;
-    for (int i = 0; i < count; i++) {
-        if (numbers[i] <= 1000) {
-            sum += numbers[i];
-        }
-    }
-    return sum;
 }
 
 /**
@@ -70,18 +50,28 @@ static int calculateSum(const int *numbers, int count) {
  * @param count Pointer to the integer that keeps track of the number of extracted numbers.
  */
 static void parseInput(const char *input, int *numbers, int *count) {
-    char delimiter[2] = {',', '\0'}; // Default delimiter
+    char delimiter[10] = {',', '\0'}; // Default delimiter, allowing for longer delimiters
 
-    if (input[0] == '/') { // Handle custom delimiter
+    // Handle custom delimiter if present
+    if (input[0] == '/') {
         handleCustomDelimiter(&input, delimiter);
     }
 
+    // Make a mutable copy of the input for strtok
+    char *modifiableInput = strdup(input); // Create a mutable copy
+    if (!modifiableInput) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+
     // Split input by newlines and process each line
-    char *line = strtok((char *)input, "\n");
+    char *line = strtok(modifiableInput, "\n");
     while (line != NULL) {
         processLine(line, numbers, count, delimiter);
-        line = strtok(NULL, "\n");
+        line = strtok(NULL, "\n"); // Get next line
     }
+
+    free(modifiableInput); // Free the allocated memory
 }
 
 /**
@@ -95,11 +85,16 @@ static void parseInput(const char *input, int *numbers, int *count) {
  * @param count Pointer to the integer that keeps track of the number of extracted numbers.
  * @param delimiter The delimiter used to split the line.
  */
-static void processLine(char *line, int *numbers, int *count, char *delimiter) {
-    char *numToken = strtok(line, delimiter);
+static void processLine(char *line, int *numbers, int *count, const char *delimiter) {
+    char *numToken = strtok(line, delimiter); // Tokenize using the specified delimiter
     while (numToken != NULL) {
-        numbers[(*count)++] = strtol(numToken, NULL, 10);
-        numToken = strtok(NULL, delimiter);
+        // Check if count exceeds MAX_NUMBERS to prevent overflow
+        if (*count >= MAX_NUMBERS) {
+            fprintf(stderr, "Error: Too many numbers provided.\n");
+            exit(EXIT_FAILURE);
+        }
+        numbers[(*count)++] = strtol(numToken, NULL, 10); // Convert to int and store
+        numToken = strtok(NULL, delimiter); // Get next token
     }
 }
 
@@ -113,11 +108,14 @@ static void processLine(char *line, int *numbers, int *count, char *delimiter) {
  * @param delimiter Buffer to store the custom delimiter.
  */
 static void handleCustomDelimiter(const char **input, char *delimiter) {
-    // Skip the custom delimiter line
-    (*input) += 2; // Skip "//"
+    // Skip the custom delimiter line (e.g., "//")
+    (*input) += 2; // Move past "//"
     while (**input != '\n' && **input != '\0') {
-        strncat(delimiter, *input, 1); // Append custom delimiter character
-        (*input)++;
+        // Ensure we do not exceed the delimiter buffer size
+        if (strlen(delimiter) < sizeof(delimiter) - 1) {
+            strncat(delimiter, *input, 1); // Append custom delimiter character
+        }
+        (*input)++; // Move to next character
     }
     (*input)++; // Skip the newline character
 }
@@ -132,15 +130,15 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  * @param count The number of elements in the array.
  */
 static void checkForNegatives(int *numbers, int count) {
-    char buffer[256] = "Exception: negatives not allowed: ";
-    int negativeCount = 0;
+    char buffer[256] = "Exception: negatives not allowed: "; // Buffer for error message
+    int negativeCount = 0; // Counter for negative numbers
 
     // Collect negative numbers
     collectNegatives(numbers, count, buffer, &negativeCount);
 
     // Print error if negatives were found
     if (negativeCount > 0) {
-        printNegativeError(buffer);
+        printNegativeError(buffer); // Report negative numbers
     }
 }
 
@@ -158,7 +156,7 @@ static void checkForNegatives(int *numbers, int count) {
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount) {
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
-            appendNegative(buffer, numbers[i], negativeCount);
+            appendNegative(buffer, numbers[i], negativeCount); // Append negative number to buffer
         }
     }
 }
@@ -177,7 +175,7 @@ static void appendNegative(char *buffer, int negativeNumber, int *negativeCount)
         strcat(buffer, ", "); // Append comma before the next negative number
     }
     sprintf(buffer + strlen(buffer), "%d", negativeNumber); // Add negative number to buffer
-    (*negativeCount)++;
+    (*negativeCount)++; // Increment negative count
 }
 
 /**
@@ -188,6 +186,6 @@ static void appendNegative(char *buffer, int negativeNumber, int *negativeCount)
  * @param buffer The error message containing the negative numbers.
  */
 static void printNegativeError(char *buffer) {
-    fprintf(stderr, "%s\n", buffer);
+    fprintf(stderr, "%s\n", buffer); // Print error message
     exit(EXIT_FAILURE); // Exit on negative number
 }
