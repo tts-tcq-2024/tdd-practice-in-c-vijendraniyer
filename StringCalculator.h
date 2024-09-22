@@ -1,139 +1,135 @@
-#ifndef STRING_CALCULATOR_H
-#define STRING_CALCULATOR_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_NUMBERS 1024    // Maximum numbers we might handle
-#define MAX_DELIMITER 16    // Maximum length for custom delimiters
-#define EMPTY_STRING ""      // Represents an empty string
+#define MAX_NUMBERS 1000
 
-// Function Declarations
-int add(const char *numbers);
-void process_custom_delimiter(char **input, char *delimiters);
-int parse_and_sum(const char *input, const char *delimiters, int *sum, char *negatives);
-void init_negatives_buffer(char *negatives);
+// Function declarations
+int add(const char *input);
+static int calculateSum(const int *numbers, int count);
+static void parseInput(const char *input, int *numbers, int *count);
+static void handleCustomDelimiter(const char **input, char *delimiter);
+static void checkForNegatives(int *numbers, int count);
 
 /**
- * @brief Sums numbers from a string with various delimiters.
- *
- * This function processes a string containing numbers separated by 
- * commas, newlines, or custom delimiters. It returns the sum of 
- * numbers less than or equal to 1000. If negative numbers are 
- * present, it returns -1 along with a message listing those numbers.
- *
- * @param numbers A string containing the numbers to be summed.
- * @return 
- *   - The sum of the numbers (<= 1000) 
- *   - -1 if any negative numbers are found, with details provided.
+ * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
+ * 
+ * This function returns the sum of the numbers, ignoring those greater than 1000. 
+ * If negative numbers are present, it reports them and exits with an error.
+ * 
+ * @param input The input string containing numbers.
+ * @return The sum of the numbers, or -1 if negatives are found.
  */
-int add(const char *numbers) {
-    char delimiters[MAX_DELIMITER] = ",";  // Default delimiter is a comma
-    char *input = NULL;                     // Pointer for the input string
-    int sum = 0;                            // Variable to store the cumulative sum
-    char negatives[MAX_NUMBERS];             // Buffer to store negative numbers
+int add(const char *input) {
+    int numbers[MAX_NUMBERS];
+    int count = 0;
 
-    // If the input string is empty, return 0
-    if (strcmp(numbers, EMPTY_STRING) == 0) {
-        return 0;
-    }
+    // Parse input to fill numbers array
+    parseInput(input, numbers, &count);
 
-    input = strdup(numbers);  // Duplicate input string for tokenization
-    if (input == NULL) {
-        return -1; // Handle memory allocation failure (simplified)
-    }
+    // Check for negative numbers
+    checkForNegatives(numbers, count);
 
-    // Check for invalid trailing comma or newline
-    if (input[strlen(input) - 1] == ',' || input[strlen(input) - 1] == '\n') {
-        free(input);
-        printf("Exception: Invalid input\n");
-        return -1; // Return an error for invalid input
-    }
-
-    process_custom_delimiter(&input, delimiters); // Check for custom delimiters
-    int negative_found = parse_and_sum(input, delimiters, &sum, negatives); // Parse and calculate sum
-
-    free(input);               // Free memory allocated for the input copy
-    if (negative_found) {
-        printf("Exception: %s\n", negatives); // Print negative numbers if found
-        return -1; // Return -1 if negatives found
-    }
-    return sum; // Return the sum if no negatives found
+    // Calculate and return the sum
+    return calculateSum(numbers, count);
 }
 
 /**
- * @brief Checks for custom delimiters and modifies input string.
- *
- * This function checks if the input string specifies a custom delimiter 
- * and updates the delimiters and input accordingly.
- *
- * @param input A pointer to the input string to process.
- * @param delimiters A string to store the custom delimiters.
+ * @brief Calculates the sum of an array of numbers.
+ * 
+ * This function iterates through the provided array and sums up all numbers 
+ * that are less than or equal to 1000.
+ * 
+ * @param numbers The array of integers to sum.
+ * @param count The number of elements in the array.
+ * @return The total sum of the numbers.
  */
-void process_custom_delimiter(char **input, char *delimiters) {
-    // Check for custom delimiter in the format "//[delimiter]\n"
-    if (strncmp(*input, "//", 2) == 0) {
-        char *delimiter_end = strchr(*input, '\n');  // Locate the newline character
-        if (delimiter_end != NULL) {
-            *delimiter_end = '\0';                  // Terminate delimiter string
-            strncpy(delimiters, *input + 2, MAX_DELIMITER - 1); // Copy the custom delimiter
-            delimiters[MAX_DELIMITER - 1] = '\0';  // Ensure null termination
-            *input = delimiter_end + 1;            // Move input pointer to start of numbers
+static int calculateSum(const int *numbers, int count) {
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        if (numbers[i] <= 1000) {
+            sum += numbers[i];
         }
     }
+    return sum;
 }
 
 /**
- * @brief Parses the input string and calculates the sum.
- *
- * This function tokenizes the input string based on specified delimiters,
- * calculates the sum, and checks for negative numbers.
- *
- * @param input The input string to parse.
- * @param delimiters The delimiters used for tokenization.
- * @param sum Pointer to an integer to store the cumulative sum.
- * @param negatives Buffer to store any negative numbers found.
- * @return 
- *   - 0 if successful,
- *   - 1 if negative numbers are found.
+ * @brief Parses the input string to extract numbers.
+ * 
+ * This function splits the input string using the specified delimiters and converts 
+ * the tokens into integers, storing them in the provided array.
+ * 
+ * @param input The input string containing numbers.
+ * @param numbers The array to store the extracted numbers.
+ * @param count Pointer to the integer that keeps track of the number of extracted numbers.
  */
-int parse_and_sum(const char *input, const char *delimiters, int *sum, char *negatives) {
-    char *token = strtok((char *)input, delimiters); // Tokenize the input string
-    int negative_found = 0;                          // Flag to track negative numbers
+static void parseInput(const char *input, int *numbers, int *count) {
+    char *token;
+    char *end;
+    char delimiter[2] = {',', '\0'}; // Default delimiter
 
-    init_negatives_buffer(negatives); // Initialize the negatives buffer
+    if (input[0] == '/') { // Handle custom delimiter
+        handleCustomDelimiter(&input, delimiter);
+    }
 
+    // Split input by delimiter and convert to integers
+    token = strtok((char *)input, "\n");
     while (token != NULL) {
-        int num = atoi(token);                        // Convert the token to an integer
-        if (num < 0) {                               // Check for negative numbers
-            if (negative_found == 0) {
-                strcpy(negatives, "negatives not allowed: "); // Initialize message
-            } else {
-                strcat(negatives, ", ");             // Append comma for additional negatives
-            }
-            strcat(negatives, token);                // Append the negative number to the message
-            negative_found++;                         // Increment negative count
-        } else if (num <= 1000) {                    // Check if the number is ≤ 1000
-            *sum += num;                            // Add valid number to the sum
+        char *numToken = strtok(token, delimiter);
+        while (numToken != NULL) {
+            numbers[(*count)++] = strtol(numToken, &end, 10);
+            numToken = strtok(NULL, delimiter);
         }
-        token = strtok(NULL, delimiters);            // Get the next token
+        token = strtok(NULL, "\n");
     }
-
-    return negative_found;                            // Return whether negatives were found
 }
 
 /**
- * @brief Initializes the negatives buffer.
- *
- * This function prepares the buffer to store negative numbers.
- *
- * @param negatives Buffer to store the negative numbers.
+ * @brief Handles custom delimiters found in the input string.
+ * 
+ * This function extracts the custom delimiter from the input string and updates the 
+ * pointer to skip past the delimiter definition.
+ * 
+ * @param input Pointer to the input string to parse.
+ * @param delimiter Buffer to store the custom delimiter.
  */
-void init_negatives_buffer(char *negatives) {
-    negatives[0] = '\0';                             // Initialize the buffer as empty
+static void handleCustomDelimiter(const char **input, char *delimiter) {
+    // Skip the custom delimiter line
+    (*input) += 2; // Skip "//"
+    while (**input != '\n' && **input != '\0') {
+        strncat(delimiter, *input, 1); // Append custom delimiter character
+        (*input)++;
+    }
+    (*input)++; // Skip the newline character
 }
 
-#endif // STRING_CALCULATOR_H
+/**
+ * @brief Checks for negative numbers in the provided array.
+ * 
+ * This function scans the numbers and if any negative numbers are found, 
+ * it prints an error message and exits the program.
+ * 
+ * @param numbers The array of integers to check.
+ * @param count The number of elements in the array.
+ */
+static void checkForNegatives(int *numbers, int count) {
+    char buffer[256] = "Exception: negatives not allowed: ";
+    int negativeCount = 0;
 
+    for (int i = 0; i < count; i++) {
+        if (numbers[i] < 0) {
+            if (negativeCount > 0) {
+                strcat(buffer, ", ");
+            }
+            sprintf(buffer + strlen(buffer), "%d", numbers[i]);
+            negativeCount++;
+        }
+    }
+
+    if (negativeCount > 0) {
+        fprintf(stderr, "%s\n", buffer);
+        exit(EXIT_FAILURE); // Exit on negative number
+    }
+}
