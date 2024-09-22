@@ -12,6 +12,7 @@ static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(int *numbers, int count);
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount);
+static void appendNegative(char *buffer, int negativeNumber, int *negativeCount);
 static void printNegativeError(char *buffer);
 static void processLine(char *line, int *numbers, int *count, char *delimiter);
 
@@ -157,13 +158,26 @@ static void checkForNegatives(int *numbers, int count) {
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount) {
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
-            if (*negativeCount > 0) {
-                strcat(buffer, ", ");
-            }
-            sprintf(buffer + strlen(buffer), "%d", numbers[i]);
-            (*negativeCount)++;
+            appendNegative(buffer, numbers[i], negativeCount);
         }
     }
+}
+
+/**
+ * @brief Appends a negative number to the error message buffer.
+ * 
+ * This function handles formatting when adding a negative number to the buffer.
+ * 
+ * @param buffer The buffer to store the error message.
+ * @param negativeNumber The negative number to append.
+ * @param negativeCount Pointer to keep track of the count of negative numbers found.
+ */
+static void appendNegative(char *buffer, int negativeNumber, int *negativeCount) {
+    if (*negativeCount > 0) {
+        strcat(buffer, ", "); // Append comma before the next negative number
+    }
+    sprintf(buffer + strlen(buffer), "%d", negativeNumber); // Add negative number to buffer
+    (*negativeCount)++;
 }
 
 /**
