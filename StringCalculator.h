@@ -123,8 +123,8 @@ static void checkForNegatives(int *numbers, int count) {
             if (negativeCount > 0) {
                 strcat(buffer, ", ");
             }
-            sprintf(buffer + strlen(buffer), "%d", numbers[i]);
             negativeCount++;
+            sprintf(buffer + strlen(buffer), "%d", numbers[i]);
         }
     }
 
