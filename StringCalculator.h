@@ -3,7 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_NUMBERS 1000 // Maximum number of integers that can be processed
+//Maximum number of integers that can be processed
+#define MAX_NUMBERS 1000
 
 // Function declarations
 int add(const char *input);
