@@ -17,6 +17,8 @@ static void printNegativeError(char *buffer);
 static void processLine(char *line, int *numbers, int *count, const char *delimiter);
 static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
+static void extractMultiCharDelimiter(const char **input, char *delimiter);
+static void extractSingleCharDelimiter(const char **input, char *delimiter);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -142,16 +144,54 @@ static void processTokens(char *line, int *numbers, int *count, const char *deli
  * @param delimiter Buffer to store the custom delimiter.
  */
 static void handleCustomDelimiter(const char **input, char *delimiter) {
-    // Skip the custom delimiter line (e.g., "//")
     (*input) += 2; // Move past "//"
-    while (**input != '\n' && **input != '\0') {
-        // Ensure we do not exceed the delimiter buffer size
-        if (strlen(delimiter) < sizeof(delimiter) - 1) {
-            strncat(delimiter, *input, 1); // Append custom delimiter character
-        }
-        (*input)++; // Move to next character
+
+    if (**input == '[') {
+        extractMultiCharDelimiter(input, delimiter);
+    } else {
+        extractSingleCharDelimiter(input, delimiter);
     }
-    (*input)++; // Skip the newline character
+    
+    // Skip the newline character after the delimiter definition
+    if (**input == '\n') {
+        (*input)++;
+    }
+}
+
+/**
+ * @brief Extracts a multi-character delimiter from the input string.
+ * 
+ * This function reads characters until the closing bracket and appends them to the 
+ * delimiter buffer.
+ * 
+ * @param input Pointer to the input string to parse.
+ * @param delimiter Buffer to store the custom multi-character delimiter.
+ */
+static void extractMultiCharDelimiter(const char **input, char *delimiter) {
+    (*input)++; // Skip the opening bracket
+    while (**input != ']' && **input != '\0') {
+        strncat(delimiter, *input, 1);
+        (*input)++;
+    }
+    if (**input == ']') {
+        (*input)++; // Skip the closing bracket
+    }
+}
+
+/**
+ * @brief Extracts a single-character delimiter from the input string.
+ * 
+ * This function reads characters until a newline or end of string is encountered 
+ * and appends them to the delimiter buffer.
+ * 
+ * @param input Pointer to the input string to parse.
+ * @param delimiter Buffer to store the custom single-character delimiter.
+ */
+static void extractSingleCharDelimiter(const char **input, char *delimiter) {
+    while (**input != '\n' && **input != '\0') {
+        strncat(delimiter, *input, 1);
+        (*input)++;
+    }
 }
 
 /**
@@ -209,7 +249,7 @@ static void appendNegative(char *buffer, int negativeNumber, int *negativeCount)
         strcat(buffer, ", "); // Append comma before the next negative number
     }
     sprintf(buffer + strlen(buffer), "%d", negativeNumber); // Add negative number to buffer
-    (*negativeCount)++; // Increment negative count
+    (*negativeCount)++;
 }
 
 /**
@@ -220,6 +260,6 @@ static void appendNegative(char *buffer, int negativeNumber, int *negativeCount)
  * @param buffer The error message containing the negative numbers.
  */
 static void printNegativeError(char *buffer) {
-    fprintf(stderr, "%s\n", buffer); // Print error message
+    fprintf(stderr, "%s\n", buffer);
     exit(EXIT_FAILURE); // Exit on negative number
 }
