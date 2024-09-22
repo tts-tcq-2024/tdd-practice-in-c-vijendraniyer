@@ -117,12 +117,17 @@ static void checkForNegatives(const int *numbers, int count) {
     int negativeCount = 0;
 
     for (int i = 0; i < count; i++) {
-        if (numbers[i] < 0) {
-            if (negativeCount > 0) {
-                strcat(buffer, ", ");
-            }
-            sprintf(buffer + strlen(buffer), "%d", numbers[i]);
-            negativeCount++;
+        switch (numbers[i] < 0) {
+            case 1: // Number is negative
+                if (negativeCount > 0) {
+                    strcat(buffer, ", ");
+                }
+                sprintf(buffer + strlen(buffer), "%d", numbers[i]);
+                negativeCount++;
+                break;
+            case 0: // Number is non-negative
+                // No action needed
+                break;
         }
     }
 
