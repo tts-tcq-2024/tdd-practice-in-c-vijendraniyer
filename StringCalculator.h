@@ -13,6 +13,7 @@ static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(int *numbers, int count);
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount);
 static void printNegativeError(char *buffer);
+static void processLine(char *line, int *numbers, int *count, char *delimiter);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
