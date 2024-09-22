@@ -1,15 +1,12 @@
+#ifndef STRING_CALCULATOR_H
+#define STRING_CALCULATOR_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define MAX_NUMBERS 1000
-
-// Function declarations
-int add(const char *input);
-static int calculateSum(const int *numbers, int count);
-static void parseInput(const char *input, int *numbers, int *count);
-static void handleCustomDelimiter(const char **input, char *delimiter);
-static void checkForNegatives(const int *numbers, int count);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -71,10 +68,14 @@ static void parseInput(const char *input, int *numbers, int *count) {
     }
 
     token = strtok((char *)input, "\n");
-    while (token) {
+    while (token != NULL) {
         char *numToken = strtok(token, delimiter);
-        while (numToken) {
-            numbers[(*count)++] = strtol(numToken, NULL, 10);
+        while (numToken != NULL) {
+            long number = strtol(numToken, NULL, 10);
+            // Check for valid number conversion and store
+            if (number >= INT_MIN && number <= INT_MAX) {
+                numbers[(*count)++] = (int)number;
+            }
             numToken = strtok(NULL, delimiter);
         }
         token = strtok(NULL, "\n");
@@ -103,7 +104,7 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  * @brief Checks for negative numbers in the provided array.
  * 
  * This function scans the numbers and if any negative numbers are found, 
- * it prints an error message and exits the program.
+ * it prints an error message and returns a flag.
  * 
  * @param numbers The array of integers to check.
  * @param count The number of elements in the array.
@@ -130,3 +131,5 @@ static int checkForNegatives(const int *numbers, int count) {
 
     return 0; // No negatives found
 }
+
+#endif // STRING_CALCULATOR_H
