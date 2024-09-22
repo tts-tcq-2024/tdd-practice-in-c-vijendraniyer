@@ -3,8 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-//Maximum number of integers that can be processed
-#define MAX_NUMBERS 1000
+#define MAX_NUMBERS 1000 // Maximum number of integers that can be processed
 
 // Function declarations
 int add(const char *input);
@@ -38,6 +37,26 @@ int add(const char *input) {
 
     // Calculate and return the sum of valid numbers
     return calculateSum(numbers, count);
+}
+
+/**
+ * @brief Calculates the sum of an array of numbers.
+ * 
+ * This function iterates through the provided array and sums up all numbers 
+ * that are less than or equal to 1000.
+ * 
+ * @param numbers The array of integers to sum.
+ * @param count The number of elements in the array.
+ * @return The total sum of the numbers.
+ */
+static int calculateSum(const int *numbers, int count) {
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        if (numbers[i] <= 1000) {
+            sum += numbers[i];
+        }
+    }
+    return sum;
 }
 
 /**
