@@ -10,7 +10,6 @@ static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(const int *numbers, int count);
-static void printNegatives(const char *message, const int *numbers, int count);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -26,7 +25,9 @@ int add(const char *input) {
     int count = 0;
 
     parseInput(input, numbers, &count);
-    checkForNegatives(numbers, count);
+    if (checkForNegatives(numbers, count)) {
+        return -1; // Early return if negatives found
+    }
 
     return calculateSum(numbers, count);
 }
@@ -106,8 +107,9 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  * 
  * @param numbers The array of integers to check.
  * @param count The number of elements in the array.
+ * @return 1 if negatives are found, otherwise 0.
  */
-static void checkForNegatives(const int *numbers, int count) {
+static int checkForNegatives(const int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: ";
     int negativeCount = 0;
 
@@ -123,6 +125,8 @@ static void checkForNegatives(const int *numbers, int count) {
 
     if (negativeCount > 0) {
         fprintf(stderr, "%s\n", buffer);
-        exit(EXIT_FAILURE); // Exit on negative number
+        return 1; // Indicate that negatives were found
     }
+
+    return 0; // No negatives found
 }
