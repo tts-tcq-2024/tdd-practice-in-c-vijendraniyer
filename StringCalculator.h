@@ -11,6 +11,7 @@ static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(int *numbers, int count);
+static void processLine(char *line, int *numbers, int *count, char *delimiter);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -66,23 +67,36 @@ static int calculateSum(const int *numbers, int count) {
  * @param count Pointer to the integer that keeps track of the number of extracted numbers.
  */
 static void parseInput(const char *input, int *numbers, int *count) {
-    char *token;
-    char *end;
     char delimiter[2] = {',', '\0'}; // Default delimiter
 
     if (input[0] == '/') { // Handle custom delimiter
         handleCustomDelimiter(&input, delimiter);
     }
 
-    // Split input by delimiter and convert to integers
-    token = strtok((char *)input, "\n");
-    while (token != NULL) {
-        char *numToken = strtok(token, delimiter);
-        while (numToken != NULL) {
-            numbers[(*count)++] = strtol(numToken, &end, 10);
-            numToken = strtok(NULL, delimiter);
-        }
-        token = strtok(NULL, "\n");
+    // Split input by newlines and process each line
+    char *line = strtok((char *)input, "\n");
+    while (line != NULL) {
+        processLine(line, numbers, count, delimiter);
+        line = strtok(NULL, "\n");
+    }
+}
+
+/**
+ * @brief Processes each line of the input to extract numbers.
+ * 
+ * This function splits the line using the specified delimiter and converts 
+ * the tokens into integers, storing them in the provided array.
+ * 
+ * @param line The line of input to process.
+ * @param numbers The array to store the extracted numbers.
+ * @param count Pointer to the integer that keeps track of the number of extracted numbers.
+ * @param delimiter The delimiter used to split the line.
+ */
+static void processLine(char *line, int *numbers, int *count, char *delimiter) {
+    char *numToken = strtok(line, delimiter);
+    while (numToken != NULL) {
+        numbers[(*count)++] = strtol(numToken, NULL, 10);
+        numToken = strtok(NULL, delimiter);
     }
 }
 
