@@ -18,8 +18,6 @@ static void processLine(char *line, int *numbers, int *count, const char *delimi
 static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
-static void appendToDelimiter(char *delimiter, const char **input);
-static void skipClosingBracket(const char **input);
 static void extractSingleCharDelimiter(const char **input, char *delimiter);
 
 /**
@@ -172,32 +170,9 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
 static void extractMultiCharDelimiter(const char **input, char *delimiter) {
     (*input)++; // Skip the opening bracket
     while (**input != ']' && **input != '\0') {
-        appendToDelimiter(delimiter, input);
+        strncat(delimiter, *input, 1);
+        (*input)++;
     }
-    skipClosingBracket(input); // Skip the closing bracket if present
-}
-
-/**
- * @brief Appends a character from input to the delimiter.
- * 
- * This function appends the current character to the delimiter and advances the input.
- * 
- * @param delimiter Buffer to store the custom delimiter.
- * @param input Pointer to the input string to parse.
- */
-static void appendToDelimiter(char *delimiter, const char **input) {
-    strncat(delimiter, *input, 1); // Append current character
-    (*input)++; // Move to the next character
-}
-
-/**
- * @brief Skips the closing bracket in the input string.
- * 
- * This function advances the input pointer past the closing bracket.
- * 
- * @param input Pointer to the input string to parse.
- */
-static void skipClosingBracket(const char **input) {
     if (**input == ']') {
         (*input)++; // Skip the closing bracket
     }
