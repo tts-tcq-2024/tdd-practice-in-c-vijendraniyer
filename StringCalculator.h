@@ -18,7 +18,8 @@ static void processLine(char *line, int *numbers, int *count, const char *delimi
 static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
-static void extractSingleCharDelimiter(const char **input, char *delimiter);
+static void appendToDelimiter(const char **input, char *delimiter);
+static void skipClosingBracket(const char **input);
 
 /**
  * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
@@ -169,10 +170,29 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
  */
 static void extractMultiCharDelimiter(const char **input, char *delimiter) {
     (*input)++; // Skip the opening bracket
+    appendToDelimiter(input, delimiter);
+    skipClosingBracket(input);
+}
+
+/**
+ * @brief Appends characters to the delimiter until a closing bracket is found.
+ * 
+ * @param input Pointer to the input string to read characters from.
+ * @param delimiter Buffer to store the custom delimiter.
+ */
+static void appendToDelimiter(const char **input, char *delimiter) {
     while (**input != ']' && **input != '\0') {
         strncat(delimiter, *input, 1);
         (*input)++;
     }
+}
+
+/**
+ * @brief Skips the closing bracket in the input string.
+ * 
+ * @param input Pointer to the input string to update.
+ */
+static void skipClosingBracket(const char **input) {
     if (**input == ']') {
         (*input)++; // Skip the closing bracket
     }
