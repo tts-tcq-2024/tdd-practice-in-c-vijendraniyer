@@ -20,16 +20,10 @@ static void processTokens(char *line, int *numbers, int *count, const char *deli
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
 static void appendToDelimiter(const char **input, char *delimiter);
 static void skipClosingBracket(const char **input);
+static void extractSingleCharDelimiter(const char **input, char *delimiter); // Move declaration here
 
-/**
- * @brief Processes a string of numbers separated by commas, newlines, or custom delimiters.
- * 
- * This function returns the sum of the numbers, ignoring those greater than 1000. 
- * If negative numbers are present, it reports them and exits with an error.
- * 
- * @param input The input string containing numbers.
- * @return The sum of the numbers, or -1 if negatives are found.
- */
+// Function definitions
+
 int add(const char *input) {
     int numbers[MAX_NUMBERS]; // Array to hold extracted numbers
     int count = 0; // Count of numbers extracted
@@ -44,16 +38,6 @@ int add(const char *input) {
     return calculateSum(numbers, count);
 }
 
-/**
- * @brief Calculates the sum of an array of numbers.
- * 
- * This function iterates through the provided array and sums up all numbers 
- * that are less than or equal to 1000.
- * 
- * @param numbers The array of integers to sum.
- * @param count The number of elements in the array.
- * @return The total sum of the numbers.
- */
 static int calculateSum(const int *numbers, int count) {
     int sum = 0;
     for (int i = 0; i < count; i++) {
@@ -64,16 +48,6 @@ static int calculateSum(const int *numbers, int count) {
     return sum;
 }
 
-/**
- * @brief Parses the input string to extract numbers.
- * 
- * This function splits the input string using the specified delimiters and converts 
- * the tokens into integers, storing them in the provided array.
- * 
- * @param input The input string containing numbers.
- * @param numbers The array to store the extracted numbers.
- * @param count Pointer to the integer that keeps track of the number of extracted numbers.
- */
 static void parseInput(const char *input, int *numbers, int *count) {
     char delimiter[10] = {',', '\0'}; // Default delimiter, allowing for longer delimiters
 
@@ -95,14 +69,6 @@ static void parseInput(const char *input, int *numbers, int *count) {
     free(modifiableInput); // Free the allocated memory
 }
 
-/**
- * @brief Splits input into lines and processes each line.
- * 
- * @param input The mutable input string to split.
- * @param numbers The array to store the extracted numbers.
- * @param count Pointer to the integer that keeps track of the number of extracted numbers.
- * @param delimiter The delimiter used to split the line.
- */
 static void splitLines(char *input, int *numbers, int *count, const char *delimiter) {
     char *line = strtok(input, "\n");
     while (line != NULL) {
@@ -111,17 +77,6 @@ static void splitLines(char *input, int *numbers, int *count, const char *delimi
     }
 }
 
-/**
- * @brief Processes each line's tokens to extract numbers.
- * 
- * This function splits the line using the specified delimiter and converts 
- * the tokens into integers, storing them in the provided array.
- * 
- * @param line The line of input to process.
- * @param numbers The array to store the extracted numbers.
- * @param count Pointer to the integer that keeps track of the number of extracted numbers.
- * @param delimiter The delimiter used to split the line.
- */
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter) {
     char *numToken = strtok(line, delimiter); // Tokenize using the specified delimiter
     while (numToken != NULL) {
@@ -135,15 +90,6 @@ static void processTokens(char *line, int *numbers, int *count, const char *deli
     }
 }
 
-/**
- * @brief Handles custom delimiters found in the input string.
- * 
- * This function extracts the custom delimiter from the input string and updates the 
- * pointer to skip past the delimiter definition.
- * 
- * @param input Pointer to the input string to parse.
- * @param delimiter Buffer to store the custom delimiter.
- */
 static void handleCustomDelimiter(const char **input, char *delimiter) {
     (*input) += 2; // Move past "//"
 
@@ -159,27 +105,12 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
     }
 }
 
-/**
- * @brief Extracts a multi-character delimiter from the input string.
- * 
- * This function reads characters until the closing bracket and appends them to the 
- * delimiter buffer.
- * 
- * @param input Pointer to the input string to parse.
- * @param delimiter Buffer to store the custom multi-character delimiter.
- */
 static void extractMultiCharDelimiter(const char **input, char *delimiter) {
     (*input)++; // Skip the opening bracket
     appendToDelimiter(input, delimiter);
     skipClosingBracket(input);
 }
 
-/**
- * @brief Appends characters to the delimiter until a closing bracket is found.
- * 
- * @param input Pointer to the input string to read characters from.
- * @param delimiter Buffer to store the custom delimiter.
- */
 static void appendToDelimiter(const char **input, char *delimiter) {
     while (**input != ']' && **input != '\0') {
         strncat(delimiter, *input, 1);
@@ -187,26 +118,12 @@ static void appendToDelimiter(const char **input, char *delimiter) {
     }
 }
 
-/**
- * @brief Skips the closing bracket in the input string.
- * 
- * @param input Pointer to the input string to update.
- */
 static void skipClosingBracket(const char **input) {
     if (**input == ']') {
         (*input)++; // Skip the closing bracket
     }
 }
 
-/**
- * @brief Extracts a single-character delimiter from the input string.
- * 
- * This function reads characters until a newline or end of string is encountered 
- * and appends them to the delimiter buffer.
- * 
- * @param input Pointer to the input string to parse.
- * @param delimiter Buffer to store the custom single-character delimiter.
- */
 static void extractSingleCharDelimiter(const char **input, char *delimiter) {
     while (**input != '\n' && **input != '\0') {
         strncat(delimiter, *input, 1);
@@ -214,15 +131,6 @@ static void extractSingleCharDelimiter(const char **input, char *delimiter) {
     }
 }
 
-/**
- * @brief Checks for negative numbers in the provided array.
- * 
- * This function scans the numbers and if any negative numbers are found, 
- * it prints an error message and exits the program.
- * 
- * @param numbers The array of integers to check.
- * @param count The number of elements in the array.
- */
 static void checkForNegatives(int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: "; // Buffer for error message
     int negativeCount = 0; // Counter for negative numbers
@@ -236,17 +144,6 @@ static void checkForNegatives(int *numbers, int count) {
     }
 }
 
-/**
- * @brief Collects negative numbers from the provided array.
- * 
- * This function scans through the numbers and appends any negative numbers 
- * to the provided buffer.
- * 
- * @param numbers The array of integers to check.
- * @param count The number of elements in the array.
- * @param buffer The buffer to store the error message.
- * @param negativeCount Pointer to keep track of the count of negative numbers found.
- */
 static void collectNegatives(int *numbers, int count, char *buffer, int *negativeCount) {
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
@@ -255,15 +152,6 @@ static void collectNegatives(int *numbers, int count, char *buffer, int *negativ
     }
 }
 
-/**
- * @brief Appends a negative number to the error message buffer.
- * 
- * This function handles formatting when adding a negative number to the buffer.
- * 
- * @param buffer The buffer to store the error message.
- * @param negativeNumber The negative number to append.
- * @param negativeCount Pointer to keep track of the count of negative numbers found.
- */
 static void appendNegative(char *buffer, int negativeNumber, int *negativeCount) {
     if (*negativeCount > 0) {
         strcat(buffer, ", "); // Append comma before the next negative number
@@ -272,13 +160,6 @@ static void appendNegative(char *buffer, int negativeNumber, int *negativeCount)
     (*negativeCount)++;
 }
 
-/**
- * @brief Prints an error message if negative numbers are found.
- * 
- * This function outputs the error message to stderr and exits the program.
- * 
- * @param buffer The error message containing the negative numbers.
- */
 static void printNegativeError(char *buffer) {
     fprintf(stderr, "%s\n", buffer);
     exit(EXIT_FAILURE); // Exit on negative number
