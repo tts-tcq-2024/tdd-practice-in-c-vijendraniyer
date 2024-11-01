@@ -11,6 +11,8 @@ static int calculateSum(const int *numbers, int count);
 static void parseInput(const char *input, int *numbers, int *count);
 static char* sanitizeInput(const char *input, char *delimiter);
 static void handleCustomDelimiter(const char **input, char *delimiter);
+static void processMultiCharDelimiter(const char **input, char *delimiter);
+static void processSingleCharDelimiter(const char **input, char *delimiter);
 static void setDefaultDelimiter(char *delimiter);
 static void checkForNegatives(int *numbers, int count);
 static int collectNegatives(int *numbers, int count, char *buffer);
@@ -53,22 +55,25 @@ static void parseInput(const char *input, int *numbers, int *count) {
 }
 
 static char* sanitizeInput(const char *input, char *delimiter) {
-    char *modifiableInput = strdup(input);
-    if (!modifiableInput) {
-        return NULL;
-    }
-
     if (input[0] == '/') {
         handleCustomDelimiter(&input, delimiter);
     }
     
-    for (char *p = modifiableInput; *p; p++) {
+    char *modifiableInput = strdup(input);
+    if (!modifiableInput) {
+        return NULL;
+    }
+    
+    replaceNewlinesWithCommas(modifiableInput);
+    return modifiableInput;
+}
+
+static void replaceNewlinesWithCommas(char *input) {
+    for (char *p = input; *p; p++) {
         if (*p == '\n') {
             *p = ',';
         }
     }
-
-    return modifiableInput;
 }
 
 static void setDefaultDelimiter(char *delimiter) {
@@ -79,17 +84,26 @@ static void setDefaultDelimiter(char *delimiter) {
 static void handleCustomDelimiter(const char **input, char *delimiter) {
     *input += 2; // Skip "//"
     if (**input == '[') {
-        (*input)++;
-        while (**input != ']' && **input != '\0') {
-            strncat(delimiter, *input, 1);
-            (*input)++;
-        }
-        if (**input == ']') (*input)++;
+        processMultiCharDelimiter(input, delimiter);
     } else {
+        processSingleCharDelimiter(input, delimiter);
+    }
+}
+
+static void processMultiCharDelimiter(const char **input, char *delimiter) {
+    (*input)++;
+    while (**input != ']' && **input != '\0') {
         strncat(delimiter, *input, 1);
         (*input)++;
     }
-    if (**input == '\n') (*input)++;
+    if (**input == ']') {
+        (*input)++;
+    }
+}
+
+static void processSingleCharDelimiter(const char **input, char *delimiter) {
+    strncat(delimiter, *input, 1);
+    (*input)++;
 }
 
 static void checkForNegatives(int *numbers, int count) {
@@ -104,11 +118,10 @@ static int collectNegatives(int *numbers, int count, char *buffer) {
     int negativeCount = 0;
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
-            if (negativeCount > 0) {
+            appendNegativeError(buffer, numbers[i]);
+            if (++negativeCount > 1) {
                 strcat(buffer, ", ");
             }
-            appendNegativeError(buffer, numbers[i]);
-            negativeCount++;
         }
     }
     return negativeCount;
