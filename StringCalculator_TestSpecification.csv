@@ -1,13 +1,9 @@
-Test Case Number,Test Case Name,Description,Input,Expected Output
-TC01,TestEmptyString_ReturnsZero,Tests that an empty string returns 0.,"""""",1
-TC02,TestSingleNumber_ReturnsSameNumber,Tests that a single number returns that number.,"""1""",1
-TC03,TestTwoNumbers_ReturnsSum,Tests that two numbers return their sum.,"""1,2""",3
-TC04,TestMultipleNumbers_ReturnsSum,Tests that multiple numbers return their sum.,"""1,2,3,4,5""",15
-TC05,TestNewLineDelimiter_ReturnsSum,Tests that new lines can be used as delimiters along with commas.,"""1\n2,3""",6
-TC06,TestCustomDelimiter_ReturnsSum,Tests that a custom delimiter specified in the input works correctly.,"""//;\n1;2""",3
-TC07,TestCustomMultiCharacterDelimiter,Tests that a custom multi-character delimiter is handled correctly.,"""//[***]\n1***2***3""",6
-TC08,TestNegativeNumber_ThrowsException,Tests that providing a negative number throws an exception.,"""1,-2,3""",Exception: 'negatives not allowed: -2'
-TC09,TestMultipleNegatives_ThrowsException,Tests that providing multiple negative numbers throws an exception.,"""1,-2,-3""","Exception: 'negatives not allowed: -2, -3'"
-TC10,TestIgnoreLargeNumbers,Tests that numbers greater than 1000 are ignored in the sum.,"""2,1001""",2
-TC11,TestMixedDelimiters_ReturnsSum,Tests that a mix of delimiters and numbers works as expected.,"""//;\n1;1001\n2,3""",6
-TC12,TestInvalidEndingWithComma_ThrowsException,Tests that a string ending with a comma is not allowed (no output).,"""1,\n""",Exception: Invalid input
+Test Case ID,Test Case Name,Preconditions,Test Description,Input String,Expected Output
+TC001,ExpectZeroForEmptyString,Input string should be empty,The function should return 0 when the input string is empty.,"""""""",0
+TC002,ExpectZeroForEmptyInput,Input string contains no numeric values,The function should return 0 when the input string contains no numeric values.,"""Hello, world!""",0
+TC003,ExpectZeroForSingleZero,Input string contains a single zero,The function should return 0 when the input string contains a single zero.,"""0""",0
+TC004,ExpectSumForNumbersSeparatedbyValidDelimiter,Input string contains any length of numbers separated by a valid delimiter,The function should return the sum of two numbers separated by a comma.,"""1,2"",""3;5;7;8""","3, 23"
+TC005,ExpectSumWithNewlineDelimiter,Input string contains numbers separated by newline and commas,The function should return the sum when numbers are separated by a newline and commas.,"""1\n2,3""",6
+TC006,IgnoreNumbersGreaterThan1000,"Input string contains numbers, with one number or more greater than 1000",The function should ignore numbers greater than 1000 and return the sum of the rest.,"""1,1001"",""2001;9087""","1, 0"
+TC007,ExpectSumWithCustomDelimiter,Input string contains a custom delimiter definition,The function should return the sum when a custom delimiter is defined,"""//;\n1;2""",3
+TC008,ExpectSumWithAnyLengthOfDelimiters,Input string contains numbers separated by a custom delimiter of any length,The function should return the sum when numbers are separated by any length of delimiter.,"""//[***]\n1***2***3""",6
