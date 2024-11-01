@@ -13,15 +13,14 @@ static void handleCustomDelimiter(const char **input, char *delimiter);
 static void checkForNegatives(int *numbers, int count);
 static int collectNegatives(int *numbers, int count, char *buffer);
 static void appendNegativeError(char *buffer, int negativeNumber);
-static void processLine(char *line, int *numbers, int *count, const char *delimiter);
 static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
+static void processLine(char *line, int *numbers, int *count, const char *delimiter);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
 static void appendToDelimiter(const char **input, char *delimiter);
-static void skipClosingBracket(const char **input);
+static void skipClosingBracket(const char **input, char *delimiter);
 static void extractSingleCharDelimiter(const char **input, char *delimiter);
-
-// Function definitions
+static void replaceNewlinesWithCommas(char *input);
 
 int add(const char *input) {
     int numbers[MAX_NUMBERS]; // Array to hold extracted numbers
@@ -48,19 +47,20 @@ static int calculateSum(const int *numbers, int count) {
 }
 
 static void parseInput(const char *input, int *numbers, int *count) {
-    char delimiter[10] = {',', '\0'}; // Default delimiter, allowing for longer delimiters
+    char delimiter[10] = {',', '\0'}; // Default delimiter
 
     // Handle custom delimiter if present
     if (input[0] == '/') {
         handleCustomDelimiter(&input, delimiter);
     }
 
-    // Make a mutable copy of the input for strtok
+    // Replace newlines with commas for tokenization
     char *modifiableInput = strdup(input); // Create a mutable copy
     if (!modifiableInput) {
         fprintf(stderr, "Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
+    replaceNewlinesWithCommas(modifiableInput);
 
     // Split input by lines and process each line
     splitLines(modifiableInput, numbers, count, delimiter);
@@ -68,12 +68,24 @@ static void parseInput(const char *input, int *numbers, int *count) {
     free(modifiableInput); // Free the allocated memory
 }
 
-static void splitLines(char *input, int *numbers, int *count, const char *delimiter) {
-    char *line = strtok(input, "\n");
-    while (line != NULL) {
-        processTokens(line, numbers, count, delimiter); // Process each line's tokens
-        line = strtok(NULL, "\n"); // Get next line
+static void replaceNewlinesWithCommas(char *input) {
+    for (char *ptr = input; *ptr; ptr++) {
+        if (*ptr == '\n') {
+            *ptr = ','; // Replace newline with comma
+        }
     }
+}
+
+static void splitLines(char *input, int *numbers, int *count, const char *delimiter) {
+    char *line = strtok(input, ",");
+    while (line != NULL) {
+        processLine(line, numbers, count, delimiter); // Process each line
+        line = strtok(NULL, ","); // Get next token
+    }
+}
+
+static void processLine(char *line, int *numbers, int *count, const char *delimiter) {
+    processTokens(line, numbers, count, delimiter); // Process tokens in the line
 }
 
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter) {
@@ -97,7 +109,7 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
     } else {
         extractSingleCharDelimiter(input, delimiter);
     }
-    
+
     // Skip the newline character after the delimiter definition
     if (**input == '\n') {
         (*input)++;
