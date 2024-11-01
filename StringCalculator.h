@@ -20,6 +20,8 @@ static void appendToDelimiter(const char **input, char *delimiter);
 static void skipClosingBracket(const char **input);
 static void extractSingleCharDelimiter(const char **input, char *delimiter);
 static void checkForInvalidEnding(const char *input);
+static int isEndingInvalid(const char *input);
+static void handleInvalidEnding();
 
 // Main add function to process the input string
 int add(const char *input) {
@@ -84,12 +86,21 @@ static void replaceNewlinesWithCommas(char *input) {
 
 // Check for invalid ending of the input
 static void checkForInvalidEnding(const char *input) {
-    size_t len = strlen(input);
-    // Check if the last character is a delimiter or the string is empty
-    if (len == 0 || input[len - 1] == ',' || input[len - 1] == '\n') {
-        fprintf(stderr, "Invalid input\n");
-        exit(EXIT_FAILURE); // Exit on invalid input
+    if (isEndingInvalid(input)) {
+        handleInvalidEnding();
     }
+}
+
+// Determine if the input ends with an invalid character
+static int isEndingInvalid(const char *input) {
+    size_t len = strlen(input);
+    return len == 0 || input[len - 1] == ',' || input[len - 1] == '\n';
+}
+
+// Handle the error for an invalid ending
+static void handleInvalidEnding() {
+    fprintf(stderr, "Invalid input\n");
+    exit(EXIT_FAILURE); // Exit on invalid input
 }
 
 // Process tokens based on the delimiter
@@ -171,9 +182,6 @@ static int collectNegatives(int *numbers, int count, char *buffer) {
 
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
-            if (negativeCount > 0) {
-                strcat(buffer, ", "); // Add comma for subsequent negatives
-            }
             appendNegativeError(buffer, numbers[i]); // Append negative number
             negativeCount++;
         }
@@ -185,5 +193,11 @@ static int collectNegatives(int *numbers, int count, char *buffer) {
 static void appendNegativeError(char *buffer, int negativeNumber) {
     char numStr[12];
     sprintf(numStr, "%d", negativeNumber); // Convert negative number to string
+    if (strstr(buffer, "negatives not allowed:") == NULL) {
+        // First negative, add the number
+        strcat(buffer, "-"); // Start with a hyphen for the first negative
+    } else {
+        strcat(buffer, ", "); // Add a comma for subsequent negatives
+    }
     strcat(buffer, numStr); // Append number to buffer
 }
