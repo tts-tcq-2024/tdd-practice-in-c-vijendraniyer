@@ -20,7 +20,7 @@ static void processTokens(char *line, int *numbers, int *count, const char *deli
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
 static void appendToDelimiter(const char **input, char *delimiter);
 static void skipClosingBracket(const char **input);
-static void extractSingleCharDelimiter(const char **input, char *delimiter); // Move declaration here
+static void extractSingleCharDelimiter(const char **input, char *delimiter);
 
 // Function definitions
 
@@ -49,7 +49,7 @@ static int calculateSum(const int *numbers, int count) {
 }
 
 static void parseInput(const char *input, int *numbers, int *count) {
-    char delimiter[10] = {',', '\0'}; // Default delimiter, allowing for longer delimiters
+    char delimiter[10] = {',', '\n', '\0'}; // Default delimiter includes newline
 
     // Handle custom delimiter if present
     if (input[0] == '/') {
