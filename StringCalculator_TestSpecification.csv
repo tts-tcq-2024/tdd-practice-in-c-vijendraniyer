@@ -1,0 +1,9 @@
+Test Case ID,Test Case Name,Preconditions,Test Description,Input String,Expected Output
+TC001,ExpectZeroForEmptyString,Input string should be empty,The function should return 0 when the input string is empty.,"""""""",0
+TC002,ExpectZeroForEmptyInput,Input string contains no numeric values,The function should return 0 when the input string contains no numeric values.,"""Hello, world!""",0
+TC003,ExpectZeroForSingleZero,Input string contains a single zero,The function should return 0 when the input string contains a single zero.,"""0""",0
+TC004,ExpectSumForNumbersSeparatedbyValidDelimiter,Input string contains any length of numbers separated by a valid delimiter,The function should return the sum of two numbers separated by a comma.,"""1,2"",""3;5;7;8""","3, 23"
+TC005,ExpectSumWithNewlineDelimiter,Input string contains numbers separated by newline and commas,The function should return the sum when numbers are separated by a newline and commas.,"""1\n2,3""",6
+TC006,IgnoreNumbersGreaterThan1000,"Input string contains numbers, with one number or more greater than 1000",The function should ignore numbers greater than 1000 and return the sum of the rest.,"""1,1001"",""2001;9087""","1, 0"
+TC007,ExpectSumWithCustomDelimiter,Input string contains a custom delimiter definition,The function should return the sum when a custom delimiter is defined,"""//;\n1;2""",3
+TC008,ExpectSumWithAnyLengthOfDelimiters,Input string contains numbers separated by a custom delimiter of any length,The function should return the sum when numbers are separated by any length of delimiter.,"""//[***]\n1***2***3""",6
