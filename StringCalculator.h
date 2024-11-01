@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_NUMBERS 1000 // Maximum number of integers that can be processed
+#define MAX_NUMBERS 1000
 
 // Function declarations
 int add(const char *input);
@@ -18,6 +18,7 @@ static void checkForNegatives(int *numbers, int count);
 static int collectNegatives(int *numbers, int count, char *buffer);
 static void appendNegativeError(char *buffer, int negativeNumber);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
+static void replaceNewlinesWithCommas(char *input); // Declaration added
 
 // Function definitions
 
