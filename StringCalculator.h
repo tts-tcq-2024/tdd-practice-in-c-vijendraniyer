@@ -12,13 +12,14 @@ static void parseInput(const char *input, int *numbers, int *count);
 static char* sanitizeInput(const char *input, char *delimiter);
 static void handleCustomDelimiter(const char **input, char *delimiter);
 static void processMultiCharDelimiter(const char **input, char *delimiter);
+static void appendToDelimiter(const char **input, char *delimiter);
 static void processSingleCharDelimiter(const char **input, char *delimiter);
 static void setDefaultDelimiter(char *delimiter);
 static void checkForNegatives(int *numbers, int count);
 static int collectNegatives(int *numbers, int count, char *buffer);
 static void appendNegativeError(char *buffer, int negativeNumber);
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
-static void replaceNewlinesWithCommas(char *input); // Declaration added
+static void replaceNewlinesWithCommas(char *input);
 
 // Function definitions
 
@@ -93,11 +94,15 @@ static void handleCustomDelimiter(const char **input, char *delimiter) {
 
 static void processMultiCharDelimiter(const char **input, char *delimiter) {
     (*input)++;
+    appendToDelimiter(input, delimiter);
+    if (**input == ']') {
+        (*input)++; // Skip closing bracket
+    }
+}
+
+static void appendToDelimiter(const char **input, char *delimiter) {
     while (**input != ']' && **input != '\0') {
         strncat(delimiter, *input, 1);
-        (*input)++;
-    }
-    if (**input == ']') {
         (*input)++;
     }
 }
@@ -109,7 +114,8 @@ static void processSingleCharDelimiter(const char **input, char *delimiter) {
 
 static void checkForNegatives(int *numbers, int count) {
     char buffer[256] = "Exception: negatives not allowed: ";
-    if (collectNegatives(numbers, count, buffer)) {
+    int negativeCount = collectNegatives(numbers, count, buffer);
+    if (negativeCount > 0) {
         fprintf(stderr, "%s\n", buffer);
         exit(EXIT_FAILURE);
     }
@@ -120,15 +126,16 @@ static int collectNegatives(int *numbers, int count, char *buffer) {
     for (int i = 0; i < count; i++) {
         if (numbers[i] < 0) {
             appendNegativeError(buffer, numbers[i]);
-            if (++negativeCount > 1) {
-                strcat(buffer, ", ");
-            }
+            negativeCount++;
         }
     }
     return negativeCount;
 }
 
 static void appendNegativeError(char *buffer, int negativeNumber) {
+    if (strstr(buffer, "negatives not allowed:") == NULL) {
+        strcat(buffer, ", ");
+    }
     char numStr[12];
     sprintf(numStr, "%d", negativeNumber);
     strcat(buffer, numStr);
