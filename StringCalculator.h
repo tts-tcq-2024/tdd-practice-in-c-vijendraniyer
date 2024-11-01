@@ -1,203 +1,198 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
-#define MAX_NUMBERS 1000 // Maximum number of integers that can be processed
-
-// Function declarations
-int add(const char *input);
-static int calculateSum(const int *numbers, int count);
-static void parseInput(const char *input, int *numbers, int *count);
-static void handleCustomDelimiter(const char **input, char *delimiter);
-static void checkForNegatives(int *numbers, int count);
-static int collectNegatives(int *numbers, int count, char *buffer);
-static void appendNegativeError(char *buffer, int negativeNumber);
-static void processLine(char *line, int *numbers, int *count, const char *delimiter);
-static void splitLines(char *input, int *numbers, int *count, const char *delimiter);
-static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
-static void extractMultiCharDelimiter(const char **input, char *delimiter);
-static void appendToDelimiter(const char **input, char *delimiter);
-static void skipClosingBracket(const char **input);
-static void extractSingleCharDelimiter(const char **input, char *delimiter);
-static int isEmptyString(const char *input); // Prototype for isEmptyString
-static void checkForInvalidInput(const char *input);
-static int hasInvalidComma(const char *input);
-static char* createMutableInput(const char *input); // New helper function prototype
-
-// Function definitions
-
-int add(const char *input) {
-    int numbers[MAX_NUMBERS]; // Array to hold extracted numbers
-    int count = 0; // Count of numbers extracted
-
-    // Check for invalid input
-    checkForInvalidInput(input);
-    
-    // Parse input to fill numbers array
-    parseInput(input, numbers, &count);
-
-    // Check for negative numbers
-    checkForNegatives(numbers, count);
-
-    // Calculate and return the sum of valid numbers
-    return calculateSum(numbers, count);
+int isDigit(char character) {
+    if(character >= '0' && character <= '9') {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
-static int calculateSum(const int *numbers, int count) {
-    int sum = 0;
+void throwNegativeException(int negatives[], int count) {
+    printf("Exception: negatives not allowed ");
     for (int i = 0; i < count; i++) {
-        if (numbers[i] <= 1000) {
-            sum += numbers[i];
+        printf("%d ", negatives[i]);
+    }
+    printf("\n");
+    exit(1);
+}
+
+int shouldInsertComma(char currentChar, char nextChar) {
+    return isDigit(currentChar) && isDigit(nextChar);
+}
+
+void insertCommasBetweenDigits(char *numbers) {
+    char temp[512];
+    int j = 0;
+
+    for (int i = 0; numbers[i] != '\0'; i++) {
+        temp[j++] = numbers[i];
+        if (shouldInsertComma(numbers[i], numbers[i + 1])) {
+            temp[j++] = ',';  
         }
     }
+    temp[j] = '\0';
+    strcpy(numbers, temp);  
+}
+
+int checkIfNextCharIsNotNumber(char nextChar) {
+    if((nextChar == '\0' || !isDigit(nextChar))) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+int hasInvalidSequence(char currentChar, char nextChar, char character) {
+    return currentChar == character && checkIfNextCharIsNotNumber(nextChar);
+}
+
+int isInputInvalid(int i, const char* numbers) {
+    if(hasInvalidSequence(numbers[i], numbers[i + 1],',') || hasInvalidSequence(numbers[i], numbers[i + 1],'\n')) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+void validateInput(const char *numbers) {
+    for (int i = 0; numbers[i] != '\0'; i++) {
+        if (isInputInvalid(i,numbers)) {
+            printf("Error: Invalid input sequence at position %d.\n", i);
+            exit(1);
+        }
+    }
+}
+
+int checkNoOfDigits(const char* input, int i) {
+    if (input[i] >= '0' && input[i] <= '9') {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+int parseDigits(const char* input) {
+    int containsDigit = 0;
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (checkNoOfDigits(input,i)) {
+            containsDigit = 1;
+        }
+    }
+    return !containsDigit;
+}
+
+int isNonNumericOrEmptyInput(const char *input) {
+    if (strlen(input) == 0) {
+        return 1;
+    }
+    return parseDigits(input);
+}
+
+int isCustomDelimiter(char *stringCopy) {
+    return strncmp(stringCopy, "//", 2) == 0;
+}
+
+int parseInputIfValid(char *start, char *end) {
+    if(end > start) {
+        return 1;
+    }
+    return 0;
+}
+
+int parseInputIfNotNull(char *start, char *end) {
+    if(start != NULL && end != NULL) {
+        return 1;
+    }
+    return 0;
+}
+
+int parseInput(char *start, char *end) {
+    if(parseInputIfNotNull(start,end) && parseInputIfValid(start,end)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+void extractCustomDelimiter(char *stringCopy, char *delimiter) {
+    char *start = strchr(stringCopy, '[');
+    char *end = strchr(stringCopy, ']');
+    if (parseInput(start,end)) {
+        strncpy(delimiter, start + 1, end - start - 1);
+        delimiter[end - start - 1] = '\0';
+    }
+}
+
+void handleEmptyDelimiter(char *numbers, char *delimiter) {
+    if (strcmp(delimiter, "") == 0) {
+        insertCommasBetweenDigits(numbers);
+        strcpy(delimiter, ",");
+    }
+}
+
+int processNegativeNumber(int number, int negatives[], int *negativeCount) {
+    if (number < 0) {
+        negatives[(*negativeCount)++] = number;
+        return 0;
+    }
+    return 1;
+}
+
+void addToSumIfValid(int number, int *sum) {
+    if (number <= 1000) {
+        *sum += number;
+    }
+}
+
+void validateCustomDelimiter(char *stringCopy, char **numbers, char *delimiter) {
+    if (isCustomDelimiter(stringCopy)) {
+        extractCustomDelimiter(stringCopy, delimiter);
+        *numbers = strchr(stringCopy, '\n') + 1;
+        handleEmptyDelimiter(*numbers, delimiter);
+    }
+}
+
+void HandleNegatives(int negativeCount, int negatives[]) {
+    if (negativeCount > 0) {
+        throwNegativeException(negatives, negativeCount);
+    }
+}
+
+int processTokenToInteger(char *numbers, char delimiter[]) {
+    char *token = strtok(numbers, delimiter);
+    int sum = 0;
+    int negatives[256];
+    int negativeCount = 0;
+    while (token != NULL) {
+        int number = atoi(token);
+        if (!processNegativeNumber(number, negatives, &negativeCount)) {
+            token = strtok(NULL, delimiter);
+            continue;
+        }
+        addToSumIfValid(number, &sum);
+        token = strtok(NULL, delimiter);
+    }
+    HandleNegatives(negativeCount,negatives);
     return sum;
 }
 
-static void parseInput(const char *input, int *numbers, int *count) {
-    char delimiter[10] = {',', '\0'}; // Default delimiter, allowing for longer delimiters
-
-    // Handle custom delimiter if present
-    if (input[0] == '/') {
-        handleCustomDelimiter(&input, delimiter);
+int add(const char *stringInput) {
+    if (isNonNumericOrEmptyInput(stringInput)) {
+        return 0;
     }
-
-    // Create a mutable copy of the input
-    char *modifiableInput = createMutableInput(input);
-    if (isEmptyString(modifiableInput)) {
-        free(modifiableInput);
-        return; // Return early if the input is empty
-    }
-
-    // Split input by lines and process each line
-    splitLines(modifiableInput, numbers, count, delimiter);
-
-    free(modifiableInput); // Free the allocated memory
-}
-
-static char* createMutableInput(const char *input) {
-    char *modifiableInput = strdup(input); // Create a mutable copy
-    if (!modifiableInput) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-    return modifiableInput;
-}
-
-static int isEmptyString(const char *input) {
-    return input == NULL || *input == '\0'; // Return 1 if empty, otherwise 0
-}
-
-static void splitLines(char *input, int *numbers, int *count, const char *delimiter) {
-    char *line = strtok(input, "\n");
-    while (line != NULL) {
-        processTokens(line, numbers, count, delimiter); // Process each line's tokens
-        line = strtok(NULL, "\n"); // Get next line
-    }
-}
-
-static void processTokens(char *line, int *numbers, int *count, const char *delimiter) {
-    char *numToken = strtok(line, delimiter); // Tokenize using the specified delimiter
-    while (numToken != NULL) {
-        // Check if count exceeds MAX_NUMBERS to prevent overflow
-        if (*count >= MAX_NUMBERS) {
-            fprintf(stderr, "Error: Too many numbers provided.\n");
-            exit(EXIT_FAILURE);
-        }
-        numbers[(*count)++] = strtol(numToken, NULL, 10); // Convert to int and store
-        numToken = strtok(NULL, delimiter); // Get next token
-    }
-}
-
-static void handleCustomDelimiter(const char **input, char *delimiter) {
-    (*input) += 2; // Move past "//"
-
-    if (**input == '[') {
-        extractMultiCharDelimiter(input, delimiter);
-    } else {
-        extractSingleCharDelimiter(input, delimiter);
-    }
-
-    // Skip the newline character after the delimiter definition
-    if (**input == '\n') {
-        (*input)++;
-    }
-}
-
-static void extractMultiCharDelimiter(const char **input, char *delimiter) {
-    (*input)++; // Skip the opening bracket
-    appendToDelimiter(input, delimiter);
-    skipClosingBracket(input);
-}
-
-static void appendToDelimiter(const char **input, char *delimiter) {
-    while (**input != ']' && **input != '\0') {
-        strncat(delimiter, *input, 1);
-        (*input)++;
-    }
-}
-
-static void skipClosingBracket(const char **input) {
-    if (**input == ']') {
-        (*input)++; // Skip the closing bracket
-    }
-}
-
-static void extractSingleCharDelimiter(const char **input, char *delimiter) {
-    while (**input != '\n' && **input != '\0') {
-        strncat(delimiter, *input, 1);
-        (*input)++;
-    }
-}
-
-static void checkForNegatives(int *numbers, int count) {
-    char buffer[256] = "Exception: negatives not allowed: "; // Buffer for error message
-    int negativeCount = collectNegatives(numbers, count, buffer);
-
-    // Print error if negatives were found
-    if (negativeCount > 0) {
-        // Ensure the message is correctly formatted
-        if (negativeCount == 1) {
-            // Remove the trailing comma and space for a single negative
-            buffer[strlen(buffer) - 2] = '\0'; // Remove the last comma and space
-        }
-        fprintf(stderr, "%s\n", buffer);
-        exit(EXIT_FAILURE); // Exit on negative number
-    }
-}
-
-static int collectNegatives(int *numbers, int count, char *buffer) {
-    int negativeCount = 0;
-    buffer[strlen(buffer)] = '\0'; // Ensure buffer is null-terminated
-    for (int i = 0; i < count; i++) {
-        if (numbers[i] < 0) {
-            appendNegativeError(buffer, numbers[i]);
-            negativeCount++;
-        }
-    }
-    return negativeCount;
-}
-
-static void appendNegativeError(char *buffer, int negativeNumber) {
-    if (strstr(buffer, "negatives not allowed:") == NULL) {
-        // First negative, add the number
-        strcat(buffer, "-"); // Start with a hyphen for the first negative
-    } else {
-        strcat(buffer, ", "); // Add a comma for subsequent negatives
-    }
-    char numStr[12];
-    sprintf(numStr, "%d", negativeNumber);
-    strcat(buffer, numStr);
-}
-
-static void checkForInvalidInput(const char *input) {
-   if (hasInvalidComma(input)) {
-        fprintf(stderr, "Invalid input\n");
-        exit(EXIT_FAILURE); // Exit on invalid input
-    }
-}
-
-static int hasInvalidComma(const char *input) {
-    // Check for an invalid comma
-    return (strchr(input, ',') != NULL && (input[strlen(input) - 1] == ',' || input[strlen(input) - 1] == '\n'));
+    char stringCopy[512];
+    strcpy(stringCopy, stringInput);
+    char delimiter[256] = ",\n;*";
+    char *numbers = stringCopy;
+    validateCustomDelimiter(stringCopy, &numbers, delimiter);
+    validateInput(numbers);
+    return processTokenToInteger(numbers,delimiter);
 }
