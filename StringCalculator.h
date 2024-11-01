@@ -21,9 +21,9 @@ static void appendToDelimiter(const char **input, char *delimiter);
 static void skipClosingBracket(const char **input);
 static void extractSingleCharDelimiter(const char **input, char *delimiter);
 static int isEmptyString(const char *input); // Prototype for isEmptyString
-static void checkForInvalidEnding(const char *input);
 static void checkForInvalidInput(const char *input);
 static int hasInvalidComma(const char *input);
+static char* createMutableInput(const char *input); // New helper function prototype
 
 // Function definitions
 
@@ -62,14 +62,8 @@ static void parseInput(const char *input, int *numbers, int *count) {
         handleCustomDelimiter(&input, delimiter);
     }
 
-    // Make a mutable copy of the input for strtok
-    char *modifiableInput = strdup(input); // Create a mutable copy
-    if (!modifiableInput) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Check if the input is empty
+    // Create a mutable copy of the input
+    char *modifiableInput = createMutableInput(input);
     if (isEmptyString(modifiableInput)) {
         free(modifiableInput);
         return; // Return early if the input is empty
@@ -79,6 +73,15 @@ static void parseInput(const char *input, int *numbers, int *count) {
     splitLines(modifiableInput, numbers, count, delimiter);
 
     free(modifiableInput); // Free the allocated memory
+}
+
+static char* createMutableInput(const char *input) {
+    char *modifiableInput = strdup(input); // Create a mutable copy
+    if (!modifiableInput) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+    return modifiableInput;
 }
 
 static int isEmptyString(const char *input) {
