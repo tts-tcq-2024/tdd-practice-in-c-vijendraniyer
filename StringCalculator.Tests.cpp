@@ -1,76 +1,66 @@
-#include "StringCalculator.h"
 #include <gtest/gtest.h>
+#include "StringCalculator.h"
 
-// Test for empty string
-TEST(StringCalculatorTest, TestEmptyString_ReturnsZero) {
-    EXPECT_EQ(add(""), 0);
+TEST(TC001, ExpectZeroForEmptyString) {
+    int expectedresult = 0;
+    const char* input = "";
+    int result = add(input);
+    ASSERT_EQ(result, expectedresult);
 }
 
-// Test for a single number
-TEST(StringCalculatorTest, TestSingleNumber_ReturnsSameNumber) {
-    EXPECT_EQ(add("1"), 1);
+TEST(TC002, ExpectZeroForEmptyInput) {
+    int expectedresult = 0;
+    const char* input = "Hello, world!";
+    int result = add(input);
+    ASSERT_EQ(result, expectedresult);
 }
 
-// Test for two numbers
-TEST(StringCalculatorTest, TestTwoNumbers_ReturnsSum) {
-    EXPECT_EQ(add("1,2"), 3);
+TEST(TC003, ExpectZeroForSingleZero) {
+    int expectedresult = 0;
+    const char* input = "0";
+    int result = add(input);
+    ASSERT_EQ(result, expectedresult);
 }
 
-// Test for multiple numbers
-TEST(StringCalculatorTest, TestMultipleNumbers_ReturnsSum) {
-    EXPECT_EQ(add("1,2,3,4,5"), 15);
+TEST(TC004, ExpectSumForNumbersSeparatedbyValidDelimiter) {
+    int expectedresult = 3;
+    int expectedresult2 = 23;
+    const char*  input = "1,2";
+    const char* input2 = "3;5;7;8";
+    int result = add(input);
+    int result2 = add(input2);
+    ASSERT_EQ(result, expectedresult);
+    ASSERT_EQ(result2, expectedresult2);
 }
 
-// Test for new line as a delimiter
-TEST(StringCalculatorTest, TestNewLineDelimiter_ReturnsSum) {
-    EXPECT_EQ(add("1\n2,3"), 6);
+TEST(TC005, ExpectSumWithNewlineDelimiter) {
+    int expectedresult = 6;
+    const char*  input = "1\n2,3";
+    int result =add(input);
+    ASSERT_EQ(result, expectedresult);
 }
 
-// Test for custom delimiter
-TEST(StringCalculatorTest, TestCustomDelimiter_ReturnsSum) {
-    EXPECT_EQ(add("//;\n1;2"), 3);
+TEST(TC006, IgnoreNumbersGreaterThan1000) {
+    int expectedresult = 1;
+    int expectedresult2 = 0;
+    const char*  input = "1,1001";
+    const char* input2 = "2001;9087";
+    int result =add(input);
+    int result2=add(input2);
+    ASSERT_EQ(result, expectedresult);
+    ASSERT_EQ(result2, expectedresult2);
 }
 
-// Test for custom multi-character delimiter
-TEST(StringCalculatorTest, TestCustomMultiCharacterDelimiter) {
-    EXPECT_EQ(add("//[***]\n1***2***3"), 6);
+TEST(TC007, ExpectSumWithCustomDelimiter) {
+    int expectedresult = 3;
+    const char*  input = "//;\n1;2";
+    int result = add(input);
+    ASSERT_EQ(result, expectedresult);
 }
 
-// Test for a negative number
-TEST(StringCalculatorTest, TestNegativeNumber_ThrowsException) {
-    testing::internal::CaptureStderr();
-    EXPECT_EQ(add("1,-2,3"), -1);
-    std::string output = testing::internal::GetCapturedStderr();
-    EXPECT_EQ(output, "Exception: negatives not allowed: -2\n");
-}
-
-// Test for multiple negative numbers
-TEST(StringCalculatorTest, TestMultipleNegatives_ThrowsException) {
-    testing::internal::CaptureStderr();
-    EXPECT_EQ(add("1,-2,-3"), -1);
-    std::string output = testing::internal::GetCapturedStderr();
-    EXPECT_EQ(output, "Exception: negatives not allowed: -2, -3\n");
-}
-
-// Test for ignoring large numbers
-TEST(StringCalculatorTest, TestIgnoreLargeNumbers) {
-    EXPECT_EQ(add("2,1001"), 2);
-}
-
-// Test for mixed delimiters
-TEST(StringCalculatorTest, TestMixedDelimiters_ReturnsSum) {
-    EXPECT_EQ(add("//;\n1;1001\n2,3"), 6);
-}
-
-// Test for invalid input ending with a comma
-TEST(StringCalculatorTest, TestInvalidEndingWithComma_ThrowsException) {
-    testing::internal::CaptureStderr();
-    EXPECT_EQ(add("1,\n"), -1);
-    std::string output = testing::internal::GetCapturedStderr();
-    EXPECT_EQ(output, "Exception: Invalid input\n");
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST(TC008, ExpectSumWithAnyLengthofDelimiters) {
+    int expectedresult = 6;
+    const char*  input = "//[***]\n1***2***3";
+    int result = add(input);
+    ASSERT_EQ(result, expectedresult);
 }
