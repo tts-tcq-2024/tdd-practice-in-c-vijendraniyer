@@ -18,7 +18,7 @@ static void processLine(char *line, int *numbers, int *count, const char *delimi
 static void processTokens(char *line, int *numbers, int *count, const char *delimiter);
 static void extractMultiCharDelimiter(const char **input, char *delimiter);
 static void appendToDelimiter(const char **input, char *delimiter);
-static void skipClosingBracket(const char **input, char *delimiter);
+static void skipClosingBracket(const char **input); // Updated function declaration
 static void extractSingleCharDelimiter(const char **input, char *delimiter);
 static void replaceNewlinesWithCommas(char *input);
 
